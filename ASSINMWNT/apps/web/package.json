@@ -1,0 +1,28 @@
+{
+  "name": "@omnimise/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@omnimise/shared": "workspace:*",
+    "framer-motion": "^11.2.10",
+    "next": "14.2.4",
+    "next-auth": "^5.0.0-beta.19",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-qr-code": "^2.0.15",
+    "swr": "^2.2.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.4.5"
+  }
+}

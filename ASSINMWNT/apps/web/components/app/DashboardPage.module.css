@@ -1,0 +1,97 @@
+.statsGrid { margin-bottom: 32px; }
+
+.statIcon {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-size: 28px;
+  opacity: 0.15;
+  z-index: 1;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+/* Type chips */
+.typeGrid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.typeChip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  flex: 1;
+  min-width: 70px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 2px solid var(--chip-color, var(--color-primary));
+}
+
+.typeChip:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-2px);
+}
+
+.typeChipIcon { font-size: 20px; }
+.typeChipCount { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+.typeChipLabel { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Activity */
+.activityList { display: flex; flex-direction: column; gap: 16px; }
+
+.activityItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activityIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.activityText { font-size: 13px; color: var(--text-primary); }
+.activityTime { font-size: 11px; color: var(--text-muted); margin-top: 2px; display: block; }
+
+/* Share CTA */
+.shareCta {
+  margin-top: 32px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, rgba(79,70,229,0.15), rgba(124,58,237,0.1));
+  border: 1px solid rgba(79,70,229,0.3);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.shareCtaContent {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.shareCtaContent h4 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.shareCtaContent p  { font-size: 14px; color: var(--text-muted); }

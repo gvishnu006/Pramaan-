@@ -1,0 +1,62 @@
+.columnLabel {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--col-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.columnLabel::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--col-color);
+  border-radius: 50%;
+}
+
+.columnCount {
+  font-size: 12px;
+  background: var(--bg-elevated);
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+
+.columnContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardEmail {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+.cardTypes {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.typeTag {
+  font-size: 10px;
+  background: var(--bg-overlay);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.cardDate {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+}

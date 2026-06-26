@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum CredentialType {
+  education
+  work
+  skill
+  kyc
+  custom
+}
+
+enum UserRole {
+  user
+  employer
+  admin
+}
+
+enum EmployerApprovalStatus {
+  pending
+  approved
+  rejected
+}
+
+enum BGVRequestStatus {
+  pending
+  consented
+  completed
+  rejected
+}
+
+enum WebhookDeliveryStatus {
+  pending
+  success
+  failed
+}
+
+enum ApiKeyScope {
+  read
+  write
+  webhook
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  avatarUrl String?  @map("avatar_url")
+  googleId  String?  @unique @map("google_id")
+  role      UserRole @default(user)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  credentials       Credential[]
+  shareTokens       ShareToken[]
+  auditLogs         AuditLog[]
+  employerProfile   EmployerProfile?
+  candidateRequests EmployerRequest[] @relation("CandidateRequests")
+
+  @@map("users")
+}
+
+model EmployerProfile {
+  id             String                 @id @default(uuid())
+  userId         String                 @unique @map("user_id")
+  companyName    String                 @map("company_name")
+  gstNumber      String?                @map("gst_number")
+  website        String?
+  contactEmail   String                 @map("contact_email")
+  approvalStatus EmployerApprovalStatus @default(pending) @map("approval_status")
+  createdAt      DateTime               @default(now()) @map("created_at")
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employerRequests EmployerRequest[]
+  apiKeys          ApiKey[]
+
+  @@map("employer_profiles")
+}
+
+model Credential {
+  id         String         @id @default(uuid())
+  userId     String         @map("user_id")
+  type       CredentialType
+  title      String
+  issuer     String
+  issueDate  DateTime?      @map("issue_date")
+  expiryDate DateTime?      @map("expiry_date")
+  verified   Boolean        @default(false)
+  metadata   Json           @default("{}")
+  fileUrl    String?        @map("file_url")
+  deletedAt  DateTime?      @map("deleted_at")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([userId, deletedAt])
+  @@map("credentials")
+}
+
+model ShareToken {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  credentialIds String[]  @map("credential_ids")
+  token         String    @unique
+  expiresAt     DateTime  @map("expires_at")
+  maxUses       Int       @default(1) @map("max_uses")
+  useCount      Int       @default(0) @map("use_count")
+  revokedAt     DateTime? @map("revoked_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("share_tokens")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String
+  targetId  String?  @map("target_id")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+model EmployerRequest {
+  id              String         @id @default(uuid())
+  employerId      String         @map("employer_id")
+  candidateEmail  String         @map("candidate_email")
+  candidateId     String?        @map("candidate_id")
+  credentialTypes CredentialType[] @map("credential_types")
+  status          BGVRequestStatus @default(pending)
+  webhookUrl      String?        @map("webhook_url")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  employer    EmployerProfile @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  candidate   User?           @relation("CandidateRequests", fields: [candidateId], references: [id], onDelete: SetNull)
+  webhookLogs WebhookLog[]
+
+  @@index([employerId])
+  @@index([candidateEmail])
+  @@index([status])
+  @@map("employer_requests")
+}
+
+model WebhookLog {
+  id             String                @id @default(uuid())
+  requestId      String                @map("request_id")
+  attempt        Int                   @default(1)
+  statusCode     Int?                  @map("status_code")
+  responseBody   String?               @map("response_body")
+  deliveryStatus WebhookDeliveryStatus @default(pending) @map("delivery_status")
+  createdAt      DateTime              @default(now()) @map("created_at")
+
+  request EmployerRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@map("webhook_logs")
+}
+
+model ApiKey {
+  id         String       @id @default(uuid())
+  employerId String       @map("employer_id")
+  name       String
+  keyHash    String       @unique @map("key_hash")
+  scopes     ApiKeyScope[]
+  lastUsedAt DateTime?    @map("last_used_at")
+  revokedAt  DateTime?    @map("revoked_at")
+  requestCount Int        @default(0) @map("request_count")
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  employer EmployerProfile @relation(fields: [employerId], references: [id], onDelete: Cascade)
+
+  @@index([keyHash])
+  @@index([employerId])
+  @@map("api_keys")
+}
